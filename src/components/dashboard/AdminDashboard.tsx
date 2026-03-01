@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { KPICard } from "@/components/dashboard/KPICard";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { Users, CalendarDays, Receipt, Pill, Loader2, Siren, BedDouble, FileText } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { TodaySchedule } from "@/components/dashboard/TodaySchedule";
+import { QueueStatus } from "@/components/dashboard/QueueStatus";
+import { PatientStatusChart } from "@/components/dashboard/PatientStatusChart";
+import { PatientSplitCard } from "@/components/dashboard/PatientSplitCard";
+import { Users, CalendarDays, Stethoscope, BedDouble, Loader2 } from "lucide-react";
+import { format } from "date-fns";
 
 interface DashboardStats {
     total_patients: number;
@@ -20,9 +23,14 @@ interface DashboardStats {
     total_beds: number;
     occupied_beds: number;
     pending_prescriptions: number;
+    doctors_on_duty: number;
+    today_appointments: any[];
+    patient_split: any;
+    queue_status: any;
+    monthly_chart: any[];
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ userName = "Admin" }: { userName?: string }) {
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -34,53 +42,66 @@ export default function AdminDashboard() {
     }, []);
 
     if (loading) {
-        return (
-            <>
-                <PageHeader title="Dashboard" />
-                <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-orange-500" /></div>
-            </>
-        );
+        return <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-[#1A56DB]" /></div>;
     }
 
+    const firstName = userName.split(" ")[0];
+
     return (
-        <>
-            <PageHeader title="Dashboard" />
-            <div className="p-4 md:p-6 space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
-                    <KPICard title="Total Patients" value={stats?.total_patients || 0} subtitle={`+${stats?.patients_today || 0} today`} icon={Users} color="orange" trend={stats?.patients_today ? "up" : "neutral"} />
-                    <KPICard title="Today's Appointments" value={stats?.appointments_today || 0} subtitle={`${stats?.appointments_scheduled || 0} scheduled total`} icon={CalendarDays} color="blue" />
-                    <KPICard title="Active Emergency" value={stats?.active_emergency || 0} subtitle="Waiting + In Treatment" icon={Siren} color={stats?.active_emergency ? "red" : "green"} />
-                    <KPICard title="Beds" value={`${stats?.occupied_beds || 0} / ${stats?.total_beds || 0}`} subtitle="Occupied / Total" icon={BedDouble} color="purple" />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
-                    <KPICard title="Pending Bills" value={formatCurrency(stats?.pending_amount || 0)} subtitle={`${stats?.pending_bills || 0} invoices`} icon={Receipt} color="amber" />
-                    <KPICard title="Active Prescriptions" value={stats?.pending_prescriptions || 0} subtitle="Awaiting dispense" icon={FileText} color="indigo" />
-                    <KPICard title="Low Stock Items" value={stats?.low_stock_count || 0} subtitle={`${stats?.expiring_soon_count || 0} expiring soon`} icon={Pill} color={stats?.low_stock_count ? "red" : "green"} />
-                    <KPICard title="Revenue This Month" value={formatCurrency(stats?.revenue_this_month || 0)} subtitle="Total collected" icon={Receipt} color="green" />
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-xl border p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Quick Stats</h3>
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center py-2 border-b"><span className="text-sm text-gray-600">Revenue This Month</span><span className="text-sm font-semibold text-gray-900">{formatCurrency(stats?.revenue_this_month || 0)}</span></div>
-                            <div className="flex justify-between items-center py-2 border-b"><span className="text-sm text-gray-600">Total Scheduled</span><span className="text-sm font-semibold text-gray-900">{stats?.appointments_scheduled || 0}</span></div>
-                            <div className="flex justify-between items-center py-2 border-b"><span className="text-sm text-gray-600">Active Emergency Cases</span><span className="text-sm font-semibold text-red-600">{stats?.active_emergency || 0}</span></div>
-                            <div className="flex justify-between items-center py-2"><span className="text-sm text-gray-600">Low Stock Medicines</span><span className="text-sm font-semibold text-red-600">{stats?.low_stock_count || 0}</span></div>
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-xl border p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Quick Navigation</h3>
-                        <div className="mt-4 grid grid-cols-2 gap-3">
-                            <a href="/hospital/patients" className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"><Users className="h-4 w-4 text-orange-500" />Patients</a>
-                            <a href="/hospital/appointments" className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"><CalendarDays className="h-4 w-4 text-blue-500" />Appointments</a>
-                            <a href="/hospital/emergency" className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"><Siren className="h-4 w-4 text-red-500" />Emergency</a>
-                            <a href="/hospital/beds" className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"><BedDouble className="h-4 w-4 text-purple-500" />Beds</a>
-                            <a href="/hospital/billing" className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"><Receipt className="h-4 w-4 text-amber-500" />Billing</a>
-                            <a href="/hospital/pharmacy" className="flex items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium text-gray-700"><Pill className="h-4 w-4 text-green-500" />Pharmacy</a>
-                        </div>
-                    </div>
-                </div>
+        <div className="p-6 space-y-6 page-enter">
+            {/* Welcome row */}
+            <div>
+                <h1 className="text-[22px] font-bold text-gray-900 font-dm-sans">
+                    Welcome back, {firstName} 👋
+                </h1>
+                <p className="text-sm text-gray-400 mt-0.5">
+                    {format(new Date(), "EEEE, MMMM d, yyyy")}
+                </p>
             </div>
-        </>
+
+            {/* KPI Cards row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <KPICard
+                    label="Today's Appointments"
+                    value={stats?.appointments_today || 0}
+                    icon={CalendarDays}
+                    iconColor="blue"
+                    trend={{ value: String(stats?.appointments_scheduled || 0), direction: "neutral", label: "scheduled" }}
+                />
+                <KPICard
+                    label="Total Patients"
+                    value={stats?.total_patients || 0}
+                    icon={Users}
+                    iconColor="green"
+                    trend={{ value: String(stats?.patient_split?.newPatients || 0), direction: "up", label: "new this month" }}
+                />
+                <KPICard
+                    label="Doctors On Duty"
+                    value={stats?.doctors_on_duty || 0}
+                    icon={Stethoscope}
+                    iconColor="purple"
+                    trend={{ value: "Active", direction: "neutral", label: "now" }}
+                />
+                <KPICard
+                    label="Available Beds"
+                    value={(stats?.total_beds || 0) - (stats?.occupied_beds || 0)}
+                    icon={BedDouble}
+                    iconColor="amber"
+                    trend={{ value: String(stats?.occupied_beds || 0), direction: "neutral", label: "occupied today" }}
+                />
+            </div>
+
+            {/* Middle row */}
+            <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
+                <div className="xl:col-span-3"><TodaySchedule appointments={stats?.today_appointments} /></div>
+                <div className="xl:col-span-2"><QueueStatus data={stats?.queue_status} /></div>
+            </div>
+
+            {/* Bottom row */}
+            <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
+                <div className="xl:col-span-3"><PatientStatusChart data={stats?.monthly_chart} /></div>
+                <div className="xl:col-span-2"><PatientSplitCard data={stats?.patient_split} totalPatients={stats?.total_patients} /></div>
+            </div>
+        </div>
     );
 }

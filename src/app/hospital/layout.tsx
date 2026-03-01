@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
 import { HospitalLayoutClient } from "./layout-client";
+import { prisma } from "@/lib/db";
 
 export default async function HospitalLayout({ children }: { children: React.ReactNode }) {
     const session = await getSession();
@@ -16,9 +17,18 @@ export default async function HospitalLayout({ children }: { children: React.Rea
         redirect("/doctor/dashboard");
     }
 
+    let hospitalName = user.hospitalName;
+    if (!hospitalName && user.hospitalId) {
+        const hospital = await prisma.hospital.findUnique({
+            where: { id: user.hospitalId },
+            select: { name: true }
+        });
+        if (hospital) hospitalName = hospital.name;
+    }
+
     return (
         <HospitalLayoutClient
-            hospitalName={user.hospitalName || "Hospital"}
+            hospitalName={hospitalName || "Hospital"}
             userName={user.name}
             userRole={user.role}
             staffRole={user.staffRole}

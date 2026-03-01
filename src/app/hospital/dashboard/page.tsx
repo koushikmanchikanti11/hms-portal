@@ -19,7 +19,7 @@ export default async function DashboardPage() {
 
     // Admin → full admin dashboard
     if (role === "admin" || role === "super_admin") {
-        return <AdminDashboard />;
+        return <AdminDashboard userName={user.name} />;
     }
 
     // Doctor → redirected at layout level, but guard here just in case

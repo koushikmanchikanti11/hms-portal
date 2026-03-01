@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { UserCog, Loader2, CheckCircle2, AlertCircle, Plus, X, Eye, EyeOff } from "lucide-react";
 
 interface StaffUser {
@@ -24,12 +23,12 @@ const STAFF_ROLES = [
 ];
 
 const ROLE_COLORS: Record<string, string> = {
-    receptionist: "bg-blue-100 text-blue-700",
-    nurse: "bg-orange-100 text-orange-700",
-    pharmacist: "bg-green-100 text-green-700",
-    lab_technician: "bg-indigo-100 text-indigo-700",
-    ward_boy: "bg-purple-100 text-purple-700",
-    accountant: "bg-emerald-100 text-emerald-700",
+    receptionist: "bg-blue-50 text-blue-700 ring-1 ring-blue-600/20",
+    nurse: "bg-orange-50 text-orange-700 ring-1 ring-orange-600/20",
+    pharmacist: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20",
+    lab_technician: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20",
+    ward_boy: "bg-purple-50 text-purple-700 ring-1 ring-purple-600/20",
+    accountant: "bg-teal-50 text-teal-700 ring-1 ring-teal-600/20",
 };
 
 interface CreateForm {
@@ -128,63 +127,62 @@ export default function StaffManagementPage() {
     }
 
     return (
-        <>
-            <PageHeader title="Staff Management" />
-            <div className="p-4 md:p-6 space-y-6">
-
-                {/* Top Bar */}
-                <div className="flex items-center justify-between">
-                    <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-start gap-3 flex-1 mr-4">
-                        <UserCog className="h-5 w-5 text-orange-500 mt-0.5 shrink-0" />
-                        <div>
-                            <p className="text-sm font-medium text-orange-800">Manage Staff Accounts</p>
-                            <p className="text-xs text-orange-600 mt-0.5">
-                                Create staff logins and assign sub-roles. Each sub-role determines which dashboard and modules the staff member can access.
-                            </p>
-                        </div>
+        <div className="page-enter flex flex-col h-full bg-[#F9FAFB] overflow-y-auto">
+            {/* Header */}
+            <div className="bg-white border-b border-gray-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-20">
+                <h1 className="text-[22px] font-bold text-gray-900 font-dm-sans flex items-center gap-2">
+                    <div className="bg-[#1A56DB]/10 p-1.5 rounded-lg border border-[#1A56DB]/20">
+                        <UserCog className="w-5 h-5 text-[#1A56DB]" />
                     </div>
+                    Staff Management
+                </h1>
+                <div className="flex items-center gap-3">
                     <button
                         onClick={() => { setShowForm(true); setFormError(null); setForm(emptyForm); }}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors shrink-0"
+                        className="bg-[#1A56DB] hover:bg-[#1E40AF] text-white shadow-sm h-9 px-4 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
                     >
-                        <Plus className="h-4 w-4" />
-                        Add Staff
+                        <Plus className="w-4 h-4" /> Add Staff
                     </button>
                 </div>
+            </div>
+
+            <div className="p-6 space-y-6">
 
                 {/* Notification */}
                 {notification && (
-                    <div className={`rounded-xl p-4 flex items-center gap-2 ${notification.type === "success"
-                            ? "bg-green-50 border border-green-200 text-green-700"
-                            : "bg-red-50 border border-red-200 text-red-700"
+                    <div className={`rounded-xl p-4 flex items-center gap-3 shadow-sm ${notification.type === "success"
+                        ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
+                        : "bg-red-50 border border-red-200 text-red-800"
                         }`}>
                         {notification.type === "success"
-                            ? <CheckCircle2 className="h-4 w-4 shrink-0" />
-                            : <AlertCircle className="h-4 w-4 shrink-0" />}
-                        <p className="text-sm font-medium">{notification.msg}</p>
+                            ? <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                            : <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />}
+                        <p className="text-sm font-semibold">{notification.msg}</p>
                     </div>
                 )}
 
                 {/* Staff Table */}
-                <div className="bg-white rounded-xl border overflow-hidden">
-                    <div className="px-6 py-4 border-b flex items-center justify-between">
-                        <h3 className="text-base font-semibold text-gray-900">
-                            Staff Members {!loading && <span className="text-gray-400 font-normal text-sm">({staff.length})</span>}
+                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-[var(--shadow-sm)]">
+                    <div className="px-5 py-4 border-b border-gray-200 bg-gray-50/50 flex items-center justify-between">
+                        <h3 className="text-[15px] font-semibold text-gray-900 font-dm-sans">
+                            Staff Directory {!loading && <span className="text-gray-500 font-medium ml-1">({staff.length})</span>}
                         </h3>
                     </div>
 
                     {loading ? (
                         <div className="flex justify-center py-16">
-                            <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+                            <Loader2 className="h-8 w-8 animate-spin text-[#1A56DB]" />
                         </div>
                     ) : staff.length === 0 ? (
-                        <div className="p-10 text-center">
-                            <UserCog className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                            <p className="text-sm font-medium text-gray-500">No staff members yet</p>
-                            <p className="text-xs text-gray-400 mt-1 mb-4">Click &ldquo;Add Staff&rdquo; to create the first staff account.</p>
+                        <div className="p-12 text-center bg-gray-50/50">
+                            <div className="w-16 h-16 bg-white border border-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                                <UserCog className="h-8 w-8 text-gray-400" />
+                            </div>
+                            <p className="text-gray-900 font-semibold mb-1">No staff members yet</p>
+                            <p className="text-sm text-gray-500 mb-6">Click &ldquo;Add Staff&rdquo; to create the first staff account.</p>
                             <button
                                 onClick={() => { setShowForm(true); setFormError(null); setForm(emptyForm); }}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-[#1A56DB] hover:bg-[#1E40AF] text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
                             >
                                 <Plus className="h-4 w-4" /> Add First Staff Member
                             </button>
@@ -193,59 +191,59 @@ export default function StaffManagementPage() {
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
-                                        <th className="px-6 py-3 text-left font-medium">Name</th>
-                                        <th className="px-6 py-3 text-left font-medium">Email</th>
-                                        <th className="px-6 py-3 text-left font-medium">Current Role</th>
-                                        <th className="px-6 py-3 text-left font-medium">Change Role</th>
-                                        <th className="px-6 py-3 text-left font-medium">Status</th>
-                                        <th className="px-6 py-3 text-left font-medium">Joined</th>
+                                    <tr className="bg-gray-50/50 border-b border-gray-200">
+                                        <th className="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th className="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
+                                        <th className="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Current Role</th>
+                                        <th className="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Change Role</th>
+                                        <th className="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Joined</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
                                     {staff.map(member => (
-                                        <tr key={member.id} className="hover:bg-gray-50 transition-colors">
-                                            <td className="px-6 py-4">
+                                        <tr key={member.id} className="hover:bg-gray-50/80 transition-colors">
+                                            <td className="px-5 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
-                                                        <span className="text-xs font-semibold text-orange-600">
+                                                    <div className="h-9 w-9 rounded-full bg-[#1A56DB]/10 flex items-center justify-center shrink-0 border border-[#1A56DB]/20">
+                                                        <span className="text-[13px] font-bold text-[#1A56DB]">
                                                             {member.name.charAt(0).toUpperCase()}
                                                         </span>
                                                     </div>
-                                                    <span className="font-medium text-gray-900">{member.name}</span>
+                                                    <span className="font-bold text-gray-900">{member.name}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-gray-600">{member.email}</td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-5 py-4 text-gray-600 font-medium">{member.email}</td>
+                                            <td className="px-5 py-4">
                                                 {member.staffRole ? (
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[member.staffRole] ?? "bg-gray-100 text-gray-700"}`}>
+                                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${ROLE_COLORS[member.staffRole] ?? "bg-gray-100 text-gray-700 ring-1 ring-gray-200"}`}>
                                                         {STAFF_ROLES.find(r => r.value === member.staffRole)?.label ?? member.staffRole}
                                                     </span>
                                                 ) : (
-                                                    <span className="text-gray-400 text-xs italic">Unassigned</span>
+                                                    <span className="text-gray-400 text-xs italic font-medium">Unassigned</span>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-5 py-4">
                                                 <div className="flex items-center gap-2">
                                                     <select
                                                         defaultValue={member.staffRole ?? ""}
                                                         onChange={e => updateRole(member.id, e.target.value)}
                                                         disabled={saving === member.id}
-                                                        className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="border border-gray-200 rounded-lg h-8 px-2.5 text-xs font-medium bg-white hover:bg-gray-50 focus:ring-2 focus:ring-[#1A56DB] focus:border-[#1A56DB] outline-none disabled:opacity-50 disabled:cursor-not-allowed shadow-sm min-w-[140px] transition-all duration-300 transform hover:scale-105"
                                                     >
                                                         {STAFF_ROLES.map(r => (
                                                             <option key={r.value} value={r.value}>{r.label}</option>
                                                         ))}
                                                     </select>
-                                                    {saving === member.id && <Loader2 className="h-4 w-4 animate-spin text-orange-500" />}
+                                                    {saving === member.id && <Loader2 className="h-4 w-4 animate-spin text-[#1A56DB]" />}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${member.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                                            <td className="px-5 py-4">
+                                                <span className={`inline-flex px-2 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider ${member.isActive ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20" : "bg-gray-100 text-gray-600 ring-1 ring-gray-200"}`}>
                                                     {member.isActive ? "Active" : "Inactive"}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-gray-400 text-xs">
+                                            <td className="px-5 py-4 text-gray-500 font-medium">
                                                 {new Date(member.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                                             </td>
                                         </tr>
@@ -256,46 +254,22 @@ export default function StaffManagementPage() {
                     )}
                 </div>
 
-                {/* Role Permissions Reference */}
-                <div className="bg-white rounded-xl border p-6">
-                    <h3 className="text-base font-semibold text-gray-900 mb-4">Role Permissions Reference</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {[
-                            { role: "Receptionist", color: "blue", access: ["Patients", "Appointments", "Billing"] },
-                            { role: "Nurse", color: "orange", access: ["Records", "Prescriptions", "Beds (view)", "Vitals"] },
-                            { role: "Pharmacist", color: "green", access: ["Pharmacy (full)", "Prescriptions"] },
-                            { role: "Lab Technician", color: "indigo", access: ["Medical Records"] },
-                            { role: "Ward Boy", color: "purple", access: ["Beds (update status)"] },
-                            { role: "Accountant", color: "emerald", access: ["Billing (full)"] },
-                        ].map(({ role, color, access }) => (
-                            <div key={role} className={`rounded-lg border p-3 bg-${color}-50 border-${color}-100`}>
-                                <p className={`text-sm font-semibold text-${color}-800 mb-2`}>{role}</p>
-                                <ul className="space-y-1">
-                                    {access.map(a => (
-                                        <li key={a} className={`text-xs text-${color}-700 flex items-center gap-1`}>
-                                            <span>✓</span> {a}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+
             </div>
 
             {/* ── Create Staff Modal ── */}
             {showForm && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
                         {/* Header */}
-                        <div className="px-6 py-5 border-b flex items-center justify-between">
+                        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
                             <div>
-                                <h2 className="text-lg font-semibold text-gray-900">Add Staff Member</h2>
-                                <p className="text-xs text-gray-500 mt-0.5">Creates login credentials for the staff dashboard</p>
+                                <h2 className="text-lg font-bold text-gray-900 font-dm-sans">Add Staff Member</h2>
+                                <p className="text-xs text-gray-500 font-medium mt-0.5">Creates login credentials for the staff dashboard</p>
                             </div>
                             <button
                                 onClick={() => setShowForm(false)}
-                                className="h-8 w-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+                                className="h-8 w-8 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors border border-gray-200"
                             >
                                 <X className="h-4 w-4" />
                             </button>
@@ -305,15 +279,15 @@ export default function StaffManagementPage() {
                         <form onSubmit={createStaff} className="p-6 space-y-4">
                             {/* Error */}
                             {formError && (
-                                <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
-                                    <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
-                                    <p className="text-sm text-red-700">{formError}</p>
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2 shadow-sm">
+                                    <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 shrink-0" />
+                                    <p className="text-sm font-medium text-red-800">{formError}</p>
                                 </div>
                             )}
 
                             {/* Full Name */}
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                            <div className="space-y-1.5">
+                                <label className="block text-[13px] font-bold text-gray-700">
                                     Full Name <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -321,14 +295,14 @@ export default function StaffManagementPage() {
                                     placeholder="e.g. Priya Nair"
                                     value={form.name}
                                     onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-shadow"
+                                    className="w-full h-10 px-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1A56DB] focus:border-[#1A56DB] outline-none transition-shadow bg-gray-50/50 focus:bg-white"
                                     required
                                 />
                             </div>
 
                             {/* Email */}
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                            <div className="space-y-1.5">
+                                <label className="block text-[13px] font-bold text-gray-700">
                                     Email Address <span className="text-red-500">*</span>
                                 </label>
                                 <input
@@ -336,14 +310,14 @@ export default function StaffManagementPage() {
                                     placeholder="staff@hospital.com"
                                     value={form.email}
                                     onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-shadow"
+                                    className="w-full h-10 px-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1A56DB] focus:border-[#1A56DB] outline-none transition-shadow bg-gray-50/50 focus:bg-white"
                                     required
                                 />
                             </div>
 
                             {/* Password */}
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                            <div className="space-y-1.5">
+                                <label className="block text-[13px] font-bold text-gray-700">
                                     Password <span className="text-red-500">*</span>
                                 </label>
                                 <div className="relative">
@@ -352,55 +326,55 @@ export default function StaffManagementPage() {
                                         placeholder="Min. 8 characters"
                                         value={form.password}
                                         onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                                        className="w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-shadow"
+                                        className="w-full h-10 px-3 pr-10 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#1A56DB] focus:border-[#1A56DB] outline-none transition-shadow bg-gray-50/50 focus:bg-white"
                                         required
                                         minLength={8}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(v => !v)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
                                     >
                                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </button>
                                 </div>
                                 {form.password && form.password.length < 8 && (
-                                    <p className="text-xs text-red-500 mt-1">At least 8 characters required</p>
+                                    <p className="text-xs font-medium text-red-500 mt-1">At least 8 characters required</p>
                                 )}
                             </div>
 
                             {/* Staff Role */}
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                            <div className="space-y-1.5 pb-2">
+                                <label className="block text-[13px] font-bold text-gray-700">
                                     Staff Role
                                 </label>
                                 <select
                                     value={form.staffRole}
                                     onChange={e => setForm(f => ({ ...f, staffRole: e.target.value }))}
-                                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-shadow"
+                                    className="w-full h-10 px-3 border border-gray-200 rounded-lg text-sm bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-[#1A56DB] focus:border-[#1A56DB] outline-none transition-shadow"
                                 >
                                     {STAFF_ROLES.map(r => (
                                         <option key={r.value} value={r.value}>{r.label}</option>
                                     ))}
                                 </select>
-                                <p className="text-xs text-gray-400 mt-1">
-                                    Determines which dashboard and modules they can access.
+                                <p className="text-[11px] font-medium text-gray-500 mt-1.5 leading-relaxed">
+                                    Determines which dashboard and modules they can access in the portal.
                                 </p>
                             </div>
 
                             {/* Actions */}
-                            <div className="flex gap-3 pt-2">
+                            <div className="flex gap-3 pt-4 border-t border-gray-100">
                                 <button
                                     type="button"
                                     onClick={() => setShowForm(false)}
-                                    className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                    className="flex-1 h-10 text-sm font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors shadow-sm"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={creating}
-                                    className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                                    className="flex-1 h-10 text-sm font-bold text-white bg-[#1A56DB] hover:bg-[#1E40AF] rounded-lg transition-colors shadow-sm disabled:opacity-60 flex items-center justify-center gap-2"
                                 >
                                     {creating && <Loader2 className="h-4 w-4 animate-spin" />}
                                     {creating ? "Creating..." : "Create Staff"}
@@ -410,6 +384,6 @@ export default function StaffManagementPage() {
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }
