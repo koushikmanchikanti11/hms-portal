@@ -13,6 +13,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         include: {
             patient: true,
             appointment: { include: { doctor: { select: { name: true } } } },
+            hospital: { select: { name: true, phone: true, email: true, address: true } },
         },
     });
 

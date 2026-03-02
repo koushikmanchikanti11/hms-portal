@@ -155,7 +155,7 @@ export function TopBar() {
     };
 
     return (
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center px-6 gap-3 sticky top-0 z-30 shrink-0">
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center px-6 gap-3 sticky top-0 z-30 shrink-0 print:hidden">
             {/* Global Search */}
             <div className="relative flex-1 max-w-sm" ref={searchRef}>
                 <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 w-full focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-300 transition-all">
@@ -220,7 +220,7 @@ export function TopBar() {
                 {/* Appointment Modal */}
                 <Dialog open={isApptOpen} onOpenChange={setIsApptOpen}>
                     <DialogTrigger asChild>
-                        <Button size="sm" className="bg-[#1A56DB] hover:bg-[#1E40AF] text-white text-xs gap-1.5 shadow-sm rounded-lg h-8">
+                        <Button suppressHydrationWarning size="sm" className="bg-[#1A56DB] hover:bg-[#1E40AF] text-white text-xs gap-1.5 shadow-sm rounded-lg h-8">
                             <Plus className="w-3.5 h-3.5" /> Appointment
                         </Button>
                     </DialogTrigger>
@@ -248,7 +248,7 @@ export function TopBar() {
                     {/* Patient Modal */}
                     <Dialog open={isPatOpen} onOpenChange={setIsPatOpen}>
                         <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
+                            <Button suppressHydrationWarning size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
                                 <Plus className="w-3.5 h-3.5" /> Patient
                             </Button>
                         </DialogTrigger>
@@ -286,7 +286,7 @@ export function TopBar() {
                     {/* Invoice Modal */}
                     <Dialog open={isInvOpen} onOpenChange={setIsInvOpen}>
                         <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
+                            <Button suppressHydrationWarning size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
                                 <Plus className="w-3.5 h-3.5" /> Invoice
                             </Button>
                         </DialogTrigger>
@@ -310,7 +310,7 @@ export function TopBar() {
                     {/* Prescription Modal */}
                     <Dialog open={isRxOpen} onOpenChange={setIsRxOpen}>
                         <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
+                            <Button suppressHydrationWarning size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
                                 <Plus className="w-3.5 h-3.5" /> Prescription
                             </Button>
                         </DialogTrigger>

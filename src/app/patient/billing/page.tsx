@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Receipt, Loader2, CheckCircle2, Clock, AlertCircle, CreditCard, Download } from "lucide-react";
+import { Receipt, Loader2, CheckCircle2, Clock, AlertCircle, CreditCard, Download, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -60,7 +62,16 @@ export default function PatientBillingPage() {
             .catch(() => setLoading(false));
     }, []);
 
-    const downloadInvoice = (inv: Invoice, patientName: string = "Patient") => {
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [previewInv, setPreviewInv] = useState<Invoice | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+    useEffect(() => {
+        return () => { if (previewUrl) URL.revokeObjectURL(previewUrl); };
+    }, [previewUrl]);
+
+    const handlePreview = (e: any, inv: Invoice, patientName: string = "Patient") => {
+        e.stopPropagation();
         const doc = new jsPDF();
 
         // Header
@@ -165,8 +176,18 @@ export default function PatientBillingPage() {
             doc.text(`Notes: ${inv.notes}`, 14, 280);
         }
 
-        // Save PDF
-        doc.save(`Invoice_${inv.invoiceNumber}.pdf`);
+        const blobUrl = doc.output("bloburl");
+        setPreviewUrl(blobUrl.toString());
+        setPreviewInv(inv);
+        setIsPreviewOpen(true);
+    };
+
+    const downloadPDF = () => {
+        if (!previewUrl || !previewInv) return;
+        const link = document.createElement("a");
+        link.href = previewUrl;
+        link.download = `Invoice_${previewInv.invoiceNumber}.pdf`;
+        link.click();
     };
 
     if (loading) {
@@ -307,11 +328,11 @@ export default function PatientBillingPage() {
                                                 <div className="flex items-center justify-between mt-4 mb-3">
                                                     <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Invoice Breakdown</h4>
                                                     <button
-                                                        onClick={(e) => { e.stopPropagation(); downloadInvoice(inv, patientName); }}
+                                                        onClick={(e) => handlePreview(e, inv, patientName)}
                                                         className="flex items-center gap-1.5 text-xs font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg transition-colors border border-orange-200"
                                                     >
-                                                        <Download className="h-3.5 w-3.5" />
-                                                        Download PDF
+                                                        <Eye className="h-3.5 w-3.5" />
+                                                        Preview PDF
                                                     </button>
                                                 </div>
 
@@ -390,6 +411,27 @@ export default function PatientBillingPage() {
                     </p>
                 </div>
             </div>
+
+            <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+                <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col rounded-xl overflow-hidden border-0 shadow-2xl">
+                    <DialogHeader className="p-4 border-b border-gray-100 flex-shrink-0 bg-white">
+                        <DialogTitle>Invoice Preview</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex-1 bg-gray-100 p-4 overflow-hidden">
+                        {previewUrl ? (
+                            <iframe src={previewUrl} className="w-full h-full rounded shadow-sm border border-gray-200" title="PDF Preview" />
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-gray-500">Preparing preview...</div>
+                        )}
+                    </div>
+                    <DialogFooter className="p-4 border-t border-gray-100 flex-shrink-0 bg-white">
+                        <Button variant="outline" onClick={() => setIsPreviewOpen(false)}>Close</Button>
+                        <Button onClick={downloadPDF} className="bg-orange-500 hover:bg-orange-600 text-white">
+                            <Download className="w-4 h-4 mr-2" /> Download PDF
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
