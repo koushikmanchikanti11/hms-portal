@@ -24,6 +24,7 @@ import {
     UserCog,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SidebarLogo } from "./SidebarLogo";
 
 type NavItem = { label: string; href: string; icon: React.ElementType };
 
@@ -102,20 +103,18 @@ export function Sidebar({
             : userRole === "super_admin" ? "Super Admin"
                 : userRole;
 
+    let accentColor = "#1A56DB"; // Default blue
+    if (staffRole === "nurse") accentColor = "#10B981";
+    if (staffRole === "pharmacist") accentColor = "#D97706";
+    if (staffRole === "lab_technician") accentColor = "#7C3AED";
+
     const sidebarContent = (
         <>
-            <div className="flex items-center gap-3 px-4 py-5 border-b border-gray-200">
-                <div className="h-9 w-9 rounded-lg bg-orange-500 flex items-center justify-center">
-                    <Hospital className="h-5 w-5 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-900 truncate">{hospitalName}</p>
-                    <p className="text-xs text-gray-500">Hospital Management</p>
-                </div>
-                <button className="lg:hidden p-1" onClick={() => setOpen(false)}>
-                    <X className="h-5 w-5 text-gray-400" />
-                </button>
-            </div>
+            <SidebarLogo
+                label={hospitalName}
+                sublabel="Hospital Management"
+                accentColor={accentColor}
+            />
 
             <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
                 {navItems.map((item) => {
@@ -128,11 +127,12 @@ export function Sidebar({
                             className={cn(
                                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors relative",
                                 isActive
-                                    ? "bg-orange-50 text-orange-600"
+                                    ? "text-white"
                                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                             )}
+                            style={isActive ? { backgroundColor: accentColor } : undefined}
                         >
-                            <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-orange-500" : "text-gray-400")} />
+                            <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-white" : "text-gray-400")} />
                             <span>{item.label}</span>
                             {item.label === "Pharmacy" && lowStockCount > 0 && (
                                 <span className="absolute right-2 h-5 min-w-[20px] rounded-full bg-red-500 text-white text-xs flex items-center justify-center px-1">
@@ -146,12 +146,12 @@ export function Sidebar({
 
             <div className="border-t border-gray-200 px-4 py-4">
                 <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-xs font-semibold text-gray-600">{userName.charAt(0).toUpperCase()}</span>
+                    <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ backgroundColor: accentColor }}>
+                        <span className="text-xs font-semibold text-white">{userName.charAt(0).toUpperCase()}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
-                        <p className="text-xs text-gray-500 capitalize">{roleLabel}</p>
+                        <p className="text-xs text-gray-500 capitalize truncate">{roleLabel}</p>
                     </div>
                     <Button
                         variant="ghost"
@@ -160,9 +160,9 @@ export function Sidebar({
                             await fetch('/api/auth/sign-out', { method: 'POST' });
                             window.location.href = '/login';
                         }}
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                     >
-                        <LogOut className="h-4 w-4 text-gray-400" />
+                        <LogOut className="h-4 w-4" />
                     </Button>
                 </div>
             </div>

@@ -72,7 +72,7 @@ function ModalSearchInput({ type, placeholder }: { type: 'patient' | 'doctor', p
     );
 }
 
-export function TopBar() {
+export function TopBar({ userRole }: { userRole?: string } = {}) {
     const router = useRouter();
     const [notificationsOpen, setNotificationsOpen] = useState(false);
     const [notifications, setNotifications] = useState<any[]>([]);
@@ -154,6 +154,8 @@ export function TopBar() {
         }, 800);
     };
 
+    const showQuickActions = userRole !== 'patient' && userRole !== 'super_admin';
+
     return (
         <header className="h-16 bg-white border-b border-gray-200 flex items-center px-6 gap-3 sticky top-0 z-30 shrink-0 print:hidden">
             {/* Global Search */}
@@ -217,120 +219,131 @@ export function TopBar() {
             </div>
 
             <div className="ml-auto flex items-center gap-2">
-                {/* Appointment Modal */}
-                <Dialog open={isApptOpen} onOpenChange={setIsApptOpen}>
-                    <DialogTrigger asChild>
-                        <Button suppressHydrationWarning size="sm" className="bg-[#1A56DB] hover:bg-[#1E40AF] text-white text-xs gap-1.5 shadow-sm rounded-lg h-8">
-                            <Plus className="w-3.5 h-3.5" /> Appointment
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px] rounded-2xl border-0 shadow-2xl">
-                        <DialogHeader>
-                            <DialogTitle className="text-xl font-bold font-dm-sans text-gray-900">New Appointment</DialogTitle>
-                        </DialogHeader>
-                        <form onSubmit={(e) => handleQuickAction(e, 'appt')} className="space-y-4 mt-2">
-                            <div className="space-y-3">
-                                <div><Label className="text-xs text-gray-500">Patient</Label><ModalSearchInput type="patient" placeholder="Search Patient..." /></div>
-                                <div><Label className="text-xs text-gray-500">Doctor</Label><ModalSearchInput type="doctor" placeholder="Search Doctor..." /></div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div><Label className="text-xs text-gray-500">Date</Label><Input type="date" required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
-                                    <div><Label className="text-xs text-gray-500">Time</Label><Input type="time" required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
-                                </div>
-                            </div>
-                            <Button type="submit" disabled={submitting} className="w-full bg-[#1A56DB] hover:bg-[#1E40AF] text-white rounded-xl h-10">
-                                {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Schedule Appointment"}
-                            </Button>
-                        </form>
-                    </DialogContent>
-                </Dialog>
+                {userRole && (
+                    <div className="hidden sm:flex items-center px-2.5 py-1 rounded-md bg-blue-50/50 text-xs font-medium text-blue-700 border border-blue-100/50 mr-2">
+                        {userRole === 'patient' ? 'Patient View — Read Only' :
+                            userRole.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                    </div>
+                )}
 
-                <div className="hidden sm:flex items-center gap-2">
-                    {/* Patient Modal */}
-                    <Dialog open={isPatOpen} onOpenChange={setIsPatOpen}>
-                        <DialogTrigger asChild>
-                            <Button suppressHydrationWarning size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
-                                <Plus className="w-3.5 h-3.5" /> Patient
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[500px] rounded-2xl border-0 shadow-2xl">
-                            <DialogHeader>
-                                <DialogTitle className="text-xl font-bold font-dm-sans text-gray-900">Register Patient</DialogTitle>
-                            </DialogHeader>
-                            <form onSubmit={(e) => handleQuickAction(e, 'pat')} className="space-y-4 mt-2">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="col-span-2"><Label className="text-xs text-gray-500">Full Name</Label><Input placeholder="John Doe" required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
-                                    <div><Label className="text-xs text-gray-500">Phone</Label><Input placeholder="+1..." required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
-                                    <div><Label className="text-xs text-gray-500">Date of Birth</Label><Input type="date" className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
-                                    <div>
-                                        <Label className="text-xs text-gray-500">Gender</Label>
-                                        <Select>
-                                            <SelectTrigger className="mt-1 bg-gray-50 border-gray-200"><SelectValue placeholder="Select" /></SelectTrigger>
-                                            <SelectContent><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem></SelectContent>
-                                        </Select>
+                {showQuickActions && (
+                    <>
+                        {/* Appointment Modal */}
+                        <Dialog open={isApptOpen} onOpenChange={setIsApptOpen}>
+                            <DialogTrigger asChild>
+                                <Button suppressHydrationWarning size="sm" className="bg-[#1A56DB] hover:bg-[#1E40AF] text-white text-xs gap-1.5 shadow-sm rounded-lg h-8">
+                                    <Plus className="w-3.5 h-3.5" /> Appointment
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px] rounded-2xl border-0 shadow-2xl">
+                                <DialogHeader>
+                                    <DialogTitle className="text-xl font-bold font-dm-sans text-gray-900">New Appointment</DialogTitle>
+                                </DialogHeader>
+                                <form onSubmit={(e) => handleQuickAction(e, 'appt')} className="space-y-4 mt-2">
+                                    <div className="space-y-3">
+                                        <div><Label className="text-xs text-gray-500">Patient</Label><ModalSearchInput type="patient" placeholder="Search Patient..." /></div>
+                                        <div><Label className="text-xs text-gray-500">Doctor</Label><ModalSearchInput type="doctor" placeholder="Search Doctor..." /></div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div><Label className="text-xs text-gray-500">Date</Label><Input type="date" required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
+                                            <div><Label className="text-xs text-gray-500">Time</Label><Input type="time" required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <Label className="text-xs text-gray-500">Blood</Label>
-                                        <Select>
-                                            <SelectTrigger className="mt-1 bg-gray-50 border-gray-200"><SelectValue placeholder="Select" /></SelectTrigger>
-                                            <SelectContent><SelectItem value="o+">O+</SelectItem><SelectItem value="a+">A+</SelectItem></SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <Button type="submit" disabled={submitting} className="w-full bg-[#1A56DB] hover:bg-[#1E40AF] text-white rounded-xl h-10 mt-2">
-                                    {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Save Patient"}
-                                </Button>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
+                                    <Button type="submit" disabled={submitting} className="w-full bg-[#1A56DB] hover:bg-[#1E40AF] text-white rounded-xl h-10">
+                                        {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Schedule Appointment"}
+                                    </Button>
+                                </form>
+                            </DialogContent>
+                        </Dialog>
 
-                    {/* Invoice Modal */}
-                    <Dialog open={isInvOpen} onOpenChange={setIsInvOpen}>
-                        <DialogTrigger asChild>
-                            <Button suppressHydrationWarning size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
-                                <Plus className="w-3.5 h-3.5" /> Invoice
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px] rounded-2xl border-0 shadow-2xl">
-                            <DialogHeader>
-                                <DialogTitle className="text-xl font-bold font-dm-sans text-gray-900">Draft Invoice</DialogTitle>
-                            </DialogHeader>
-                            <form onSubmit={(e) => handleQuickAction(e, 'inv')} className="space-y-4 mt-2">
-                                <div className="space-y-3">
-                                    <div><Label className="text-xs text-gray-500">Patient</Label><ModalSearchInput type="patient" placeholder="Search Patient..." /></div>
-                                    <div><Label className="text-xs text-gray-500">Amount ($)</Label><Input type="number" placeholder="0.00" required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
-                                    <div><Label className="text-xs text-gray-500">Due Date</Label><Input type="date" required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
-                                </div>
-                                <Button type="submit" disabled={submitting} className="w-full bg-[#1A56DB] hover:bg-[#1E40AF] text-white rounded-xl h-10 mt-2">
-                                    {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Create Invoice"}
-                                </Button>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
+                        <div className="hidden sm:flex items-center gap-2">
+                            {/* Patient Modal */}
+                            <Dialog open={isPatOpen} onOpenChange={setIsPatOpen}>
+                                <DialogTrigger asChild>
+                                    <Button suppressHydrationWarning size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
+                                        <Plus className="w-3.5 h-3.5" /> Patient
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[500px] rounded-2xl border-0 shadow-2xl">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-xl font-bold font-dm-sans text-gray-900">Register Patient</DialogTitle>
+                                    </DialogHeader>
+                                    <form onSubmit={(e) => handleQuickAction(e, 'pat')} className="space-y-4 mt-2">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="col-span-2"><Label className="text-xs text-gray-500">Full Name</Label><Input placeholder="John Doe" required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
+                                            <div><Label className="text-xs text-gray-500">Phone</Label><Input placeholder="+1..." required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
+                                            <div><Label className="text-xs text-gray-500">Date of Birth</Label><Input type="date" className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
+                                            <div>
+                                                <Label className="text-xs text-gray-500">Gender</Label>
+                                                <Select>
+                                                    <SelectTrigger className="mt-1 bg-gray-50 border-gray-200"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                    <SelectContent><SelectItem value="male">Male</SelectItem><SelectItem value="female">Female</SelectItem></SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div>
+                                                <Label className="text-xs text-gray-500">Blood</Label>
+                                                <Select>
+                                                    <SelectTrigger className="mt-1 bg-gray-50 border-gray-200"><SelectValue placeholder="Select" /></SelectTrigger>
+                                                    <SelectContent><SelectItem value="o+">O+</SelectItem><SelectItem value="a+">A+</SelectItem></SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                        <Button type="submit" disabled={submitting} className="w-full bg-[#1A56DB] hover:bg-[#1E40AF] text-white rounded-xl h-10 mt-2">
+                                            {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Save Patient"}
+                                        </Button>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
 
-                    {/* Prescription Modal */}
-                    <Dialog open={isRxOpen} onOpenChange={setIsRxOpen}>
-                        <DialogTrigger asChild>
-                            <Button suppressHydrationWarning size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
-                                <Plus className="w-3.5 h-3.5" /> Prescription
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px] rounded-2xl border-0 shadow-2xl">
-                            <DialogHeader>
-                                <DialogTitle className="text-xl font-bold font-dm-sans text-gray-900">New Prescription</DialogTitle>
-                            </DialogHeader>
-                            <form onSubmit={(e) => handleQuickAction(e, 'rx')} className="space-y-4 mt-2">
-                                <div className="space-y-3">
-                                    <div><Label className="text-xs text-gray-500">Patient</Label><ModalSearchInput type="patient" placeholder="Search Patient..." /></div>
-                                    <div><Label className="text-xs text-gray-500">Medications (Comma separated)</Label><Input placeholder="Paracetamol, Amoxicillin..." required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
-                                    <div><Label className="text-xs text-gray-500">Notes / Dosage</Label><Input placeholder="1x daily after food" className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
-                                </div>
-                                <Button type="submit" disabled={submitting} className="w-full bg-[#1A56DB] hover:bg-[#1E40AF] text-white rounded-xl h-10 mt-2">
-                                    {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Issue Prescription"}
-                                </Button>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
-                </div>
+                            {/* Invoice Modal */}
+                            <Dialog open={isInvOpen} onOpenChange={setIsInvOpen}>
+                                <DialogTrigger asChild>
+                                    <Button suppressHydrationWarning size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
+                                        <Plus className="w-3.5 h-3.5" /> Invoice
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px] rounded-2xl border-0 shadow-2xl">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-xl font-bold font-dm-sans text-gray-900">Draft Invoice</DialogTitle>
+                                    </DialogHeader>
+                                    <form onSubmit={(e) => handleQuickAction(e, 'inv')} className="space-y-4 mt-2">
+                                        <div className="space-y-3">
+                                            <div><Label className="text-xs text-gray-500">Patient</Label><ModalSearchInput type="patient" placeholder="Search Patient..." /></div>
+                                            <div><Label className="text-xs text-gray-500">Amount ($)</Label><Input type="number" placeholder="0.00" required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
+                                            <div><Label className="text-xs text-gray-500">Due Date</Label><Input type="date" required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
+                                        </div>
+                                        <Button type="submit" disabled={submitting} className="w-full bg-[#1A56DB] hover:bg-[#1E40AF] text-white rounded-xl h-10 mt-2">
+                                            {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Create Invoice"}
+                                        </Button>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
+
+                            {/* Prescription Modal */}
+                            <Dialog open={isRxOpen} onOpenChange={setIsRxOpen}>
+                                <DialogTrigger asChild>
+                                    <Button suppressHydrationWarning size="sm" variant="outline" className="text-xs gap-1.5 border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg h-8">
+                                        <Plus className="w-3.5 h-3.5" /> Prescription
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px] rounded-2xl border-0 shadow-2xl">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-xl font-bold font-dm-sans text-gray-900">New Prescription</DialogTitle>
+                                    </DialogHeader>
+                                    <form onSubmit={(e) => handleQuickAction(e, 'rx')} className="space-y-4 mt-2">
+                                        <div className="space-y-3">
+                                            <div><Label className="text-xs text-gray-500">Patient</Label><ModalSearchInput type="patient" placeholder="Search Patient..." /></div>
+                                            <div><Label className="text-xs text-gray-500">Medications (Comma separated)</Label><Input placeholder="Paracetamol, Amoxicillin..." required className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
+                                            <div><Label className="text-xs text-gray-500">Notes / Dosage</Label><Input placeholder="1x daily after food" className="mt-1 bg-gray-50 border-gray-200 focus-visible:ring-[#1A56DB]" /></div>
+                                        </div>
+                                        <Button type="submit" disabled={submitting} className="w-full bg-[#1A56DB] hover:bg-[#1E40AF] text-white rounded-xl h-10 mt-2">
+                                            {submitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Issue Prescription"}
+                                        </Button>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
+                    </>
+                )}
 
                 <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block" />
 

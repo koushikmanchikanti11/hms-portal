@@ -7,16 +7,31 @@ import { cn } from "@/lib/utils";
 import {
     LayoutDashboard,
     Building2,
+    BarChart3,
+    Settings,
+    ClipboardList,
     LogOut,
     Menu,
     X,
-    ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SidebarLogo } from "./SidebarLogo";
 
-const navItems = [
-    { label: "Dashboard", href: "/super-admin/dashboard", icon: LayoutDashboard },
-    { label: "Hospitals", href: "/super-admin/hospitals", icon: Building2 },
+type NavItem = {
+    section?: string;
+    label?: string;
+    href?: string;
+    icon?: React.ElementType;
+};
+
+const superAdminNav: NavItem[] = [
+    { section: "SYSTEM" },
+    { icon: LayoutDashboard, label: "Dashboard", href: "/super-admin/dashboard" },
+    { icon: Building2, label: "Hospitals", href: "/super-admin/hospitals" },
+    { icon: BarChart3, label: "Analytics", href: "/super-admin/analytics" },
+    { section: "SETTINGS" },
+    { icon: Settings, label: "System Config", href: "/super-admin/config" },
+    { icon: ClipboardList, label: "Audit Logs", href: "/super-admin/audit" },
 ];
 
 export function SuperAdminSidebar() {
@@ -25,22 +40,24 @@ export function SuperAdminSidebar() {
 
     const sidebarContent = (
         <>
-            <div className="flex items-center gap-3 px-4 py-5 border-b border-gray-200">
-                <div className="h-9 w-9 rounded-lg bg-orange-500 flex items-center justify-center">
-                    <ShieldCheck className="h-5 w-5 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-900 truncate">HMS System</p>
-                    <p className="text-xs text-gray-500">Super Admin</p>
-                </div>
-                <button className="lg:hidden p-1" onClick={() => setOpen(false)}>
-                    <X className="h-5 w-5 text-gray-400" />
-                </button>
-            </div>
+            <SidebarLogo label="HMS System" accentColor="#1A56DB" />
 
-            <nav className="flex-1 px-3 py-4 space-y-1">
-                {navItems.map((item) => {
+            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+                {superAdminNav.map((item, index) => {
+                    if (item.section) {
+                        return (
+                            <div key={`section-${index}`} className="px-3 pt-4 pb-2">
+                                <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                    {item.section}
+                                </p>
+                            </div>
+                        );
+                    }
+
+                    if (!item.href || !item.icon || !item.label) return null;
+
                     const isActive = pathname.startsWith(item.href);
+
                     return (
                         <Link
                             key={item.href}
@@ -49,11 +66,11 @@ export function SuperAdminSidebar() {
                             className={cn(
                                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                                 isActive
-                                    ? "bg-orange-50 text-orange-600"
+                                    ? "bg-blue-50 text-[#1A56DB]"
                                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                             )}
                         >
-                            <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-orange-500" : "text-gray-400")} />
+                            <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-[#1A56DB]" : "text-gray-400")} />
                             <span>{item.label}</span>
                         </Link>
                     );
@@ -62,12 +79,12 @@ export function SuperAdminSidebar() {
 
             <div className="border-t border-gray-200 px-4 py-4">
                 <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center">
-                        <ShieldCheck className="h-4 w-4 text-orange-600" />
+                    <div className="h-8 w-8 rounded-full bg-[#1A56DB] flex items-center justify-center">
+                        <span className="text-xs font-semibold text-white">SA</span>
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900">Super Admin</p>
-                        <p className="text-xs text-gray-500">System Admin</p>
+                        <p className="text-xs text-gray-500 truncate">System Owner</p>
                     </div>
                     <Button
                         variant="ghost"
@@ -76,9 +93,9 @@ export function SuperAdminSidebar() {
                             await fetch('/api/auth/sign-out', { method: 'POST' });
                             window.location.href = '/login';
                         }}
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                     >
-                        <LogOut className="h-4 w-4 text-gray-400" />
+                        <LogOut className="h-4 w-4" />
                     </Button>
                 </div>
             </div>
