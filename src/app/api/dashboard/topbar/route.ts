@@ -11,6 +11,14 @@ export async function GET(req: NextRequest) {
     const query = searchParams.get("q") || "";
 
     try {
+        // If no hospitalId (e.g. super_admin without hospital context), return empty data
+        if (!hospitalId) {
+            return NextResponse.json({
+                search: { patients: [], doctors: [] },
+                notifications: []
+            });
+        }
+
         let searchResults = { patients: [] as any[], doctors: [] as any[] };
 
         // 1. If there's a search query, fetch global search results

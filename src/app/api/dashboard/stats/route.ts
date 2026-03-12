@@ -7,6 +7,23 @@ export async function GET(req: NextRequest) {
     if (guard instanceof NextResponse) return guard;
     const { hospitalId } = guard;
 
+    // If no hospitalId (e.g. super_admin without hospital context), return zeroed stats
+    if (!hospitalId) {
+        return NextResponse.json({
+            total_patients: 0, patients_today: 0,
+            appointments_today: 0, appointments_scheduled: 0,
+            pending_bills: 0, pending_amount: 0,
+            low_stock_count: 0, expiring_soon_count: 0,
+            revenue_this_month: 0, active_emergency: 0,
+            total_beds: 0, occupied_beds: 0,
+            pending_prescriptions: 0, doctors_on_duty: 0,
+            today_appointments: [],
+            patient_split: { newPatients: 0, oldPatients: 0, maleCount: 0, femaleCount: 0 },
+            queue_status: { waiting: 0, completed: 0, cancelled: 0 },
+            monthly_chart: [],
+        });
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
